@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+    <info organisation="org.usfirst.frc.team1758" module="robot"/>
+    <dependencies>
+        <dependency org="org.json" name="json" rev="20160810"/>
+        <dependency org="edu.wpi.first.wpilibj" name="wpilibJavaFinal" rev="2016.5.1"/>
+    </dependencies>
+</ivy-module>
