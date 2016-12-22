@@ -104,7 +104,7 @@ public class Robot extends IterativeRobot {
     	}
     return sb.toString();
     }
-    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException
+    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException
     {
     	HttpURLConnection conn = (HttpURLConnection)new URL(url).openConnection();
     	conn.setRequestMethod("GET");
@@ -498,15 +498,10 @@ public class Robot extends IterativeRobot {
     public void pickUpBall ()
     {	
     	mPickUpBall.set(-0.5);
-		
-    	//mPickUpBall.set(0.0);
     }
     public void putDownBall()
     {
-    
     	mPickUpBall.set(0.5);
-    	
-    //	mPickUpBall.set(0.0);
     }
     public void stopTouchingTheBall()
     {
@@ -517,42 +512,14 @@ public class Robot extends IterativeRobot {
     	mAdjustAngle.set(Relay.Value.kForward);
     }
     public void adjustAngle1()
-{
-    	mAdjustAngle.set(Relay.Value.kReverse);
-}
+	{
+		mAdjustAngle.set(Relay.Value.kReverse);
+	}
 	public void stopAngle()
 	{
 		mAdjustAngle.set(Relay.Value.kOff);
 	}
 
- /*   public void centerCalculate() {
-		// TODO Auto-generated method stub
-		ColorImage image = null;
-		BinaryImage thresholdImage = null;
-		BinaryImage bigObjectsImage = null;
-		BinaryImage convexHullImage = null;
-		BinaryImage filteredImage = null;
-		try 
-		{
-			image = technoCam.getImage();
-			thresholdImage = image.thresholdRGB(0, 45, 25, 255, 0, 27);
-			bigObjectsImage = thresholdImage.removeSmallObjects(false, 2);
-			convexHullImage = bigObjectsImage.convexHull(false);
-		}catch(Exception ex)
-		{
-			
-		}try 
-		{
-			thresholdImage.free();
-			bigObjectsImage.free();
-			convexHullImage.free();
-			
-		}catch (Exception ex) 
-		{}
-		finally 
-		{}
-	}
-*/
 	public void testPeriodic() {
 		JSONObject json;
     	try{
@@ -574,18 +541,6 @@ public class Robot extends IterativeRobot {
     	}else{
     		tmDrive.tankDrive(0.0, 0.0);
     	}
-    	
-//    	if(areas.length() > 0 && thrust <= 10)
-//    	{
-//    		tmDrive.tankDrive(.5, .5);
-//    		thrust = 10;
-//    	} else if(thrust > 0) {
-//    		tmDrive.tankDrive(.5, .5);
-//    		thrust--;
-//    		System.out.printf("Thrust Value: %d\r\n", thrust);
-//    	} else {
-//    		tmDrive.tankDrive(0.0, 0.0);
-//    	}
     }
     
 }

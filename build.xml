@@ -19,16 +19,19 @@
           <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
       </path>
       <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+      <ivy:settings file="ivysettings.xml"/>
   </target>
 
-  <target name="init" depends="init-ivy" description="Retrieve all the dependencies needed for the project to build">
-    <ivy:settings file="ivysettings.xml"/>
-    <ivy:retrieve conf="tasks" pattern="${tasks.dir}/[artifact]-[revision].[ext]"/>
+  <target name="dependencies" depends="init-ivy" description="Retrieve the build dependencies">
     <ivy:retrieve conf="dep"/>
+  </target>
+
+  <target name="deploy-dependencies" depends="init-ivy" description="Retrieve the dependencies for deployment">
+    <ivy:retrieve conf="tasks" pattern="${tasks.dir}/[artifact]-[revision].[ext]"/>
     <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="project.tasks.path"/>
   </target>
   
-  <target name="compile" depends="init" description="Compile the source">
+  <target name="compile" depends="dependencies" description="Compile the source">
     <mkdir dir="${build.dir}"/>
     <echo>Compiling ${src.dir} with classpath=${toString:project.class.path} to ${build.dir}</echo>
     <javac srcdir="${src.dir}"
@@ -43,7 +46,7 @@
     </javac>
   </target>
 
-  <target name="jar" depends="compile" description="Generate the distribution">
+  <target name="jar" depends="compile,dependencies" description="Generate the distribution">
     <echo>Making jar ${dist.jar}</echo>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${build.jars}"/>
@@ -65,7 +68,7 @@
     </jar>
   </target>
 
-  <target name="deploy" depends="clean-build,jar,get-target-ip,dependencies" description="Deploy the jar and restart the roboRio">
+  <target name="deploy" depends="clean-build,jar,get-target-ip,deploy-dependencies" description="Deploy the jar and restart the roboRio">
     <echo>Starting deployment</echo>
     <scp file="${dist.jar}" todir="${username}@${target}:${deploy.dir}" password="${password}" trust="true"/>
     <sshexec host="${target}"
@@ -144,7 +147,7 @@
     </if>
   </target>
 
-  <target name="dependencies" depends="get-target-ip">
+  <target name="varify-rio" depends="get-target-ip">
     <post to="http://${target}/nisysapi/server" logfile="sysProps.xml" verbose="false" encoding="UTF-16LE" append="false">
       <prop name="Function" value="GetPropertiesOfItem"/>
       <prop name="Plugins" value="nisyscfg"/>
