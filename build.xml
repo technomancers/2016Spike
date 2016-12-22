@@ -68,7 +68,7 @@
     </jar>
   </target>
 
-  <target name="deploy" depends="clean-build,jar,get-target-ip,deploy-dependencies" description="Deploy the jar and restart the roboRio">
+  <target name="deploy" depends="clean-build,jar,get-target-ip,verify-rio" description="Deploy the jar and restart the roboRio">
     <echo>Starting deployment</echo>
     <scp file="${dist.jar}" todir="${username}@${target}:${deploy.dir}" password="${password}" trust="true"/>
     <sshexec host="${target}"
@@ -108,7 +108,7 @@
     <delete dir="${tasks.dir}"/>
   </target>
 
-  <target name="get-target-ip">
+  <target name="get-target-ip" depends="deploy-dependencies">
     <fail unless="team-number" message="Team number needs to be set in the build.properties"/>
     <property name="target" value="roboRIO-${team-number}-FRC.local" />
     <echo>Trying Target: ${target}</echo>
@@ -147,7 +147,7 @@
     </if>
   </target>
 
-  <target name="varify-rio" depends="get-target-ip">
+  <target name="verify-rio" depends="get-target-ip,deploy-dependencies">
     <post to="http://${target}/nisysapi/server" logfile="sysProps.xml" verbose="false" encoding="UTF-16LE" append="false">
       <prop name="Function" value="GetPropertiesOfItem"/>
       <prop name="Plugins" value="nisyscfg"/>
