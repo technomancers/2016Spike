@@ -1,83 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="FRC Deployment" default="dist" xmlns:ivy="antlib:org.apache.ivy.ant">
-  <property name="src" location="src"/>
-  <property name="build" location="build"/>
-  <property name="dist" location="dist"/>
-  <property name="lib" location="lib"/>
-  <property name="ivy.install.version" value="2.4.0" />
-  <condition property="ivy.home" value="${env.IVY_HOME}">
-    <isset property="env.IVY_HOME" />
-  </condition>
-  <property name="ivy.home" value="${user.home}/.ant" />
-  <property name="ivy.jar.dir" value="${ivy.home}/lib" />
-  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+<project name="FRC Deployment" default="deploy" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <property file="build.properties"/>
+  <path id="project.class.path">
+    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+  </path>
+
   <target name="download-ivy" unless="offline">
       <mkdir dir="${ivy.jar.dir}"/>
       <!-- download Ivy from web site so that it can be used even without any special installation -->
       <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
   </target>
+
   <target name="init-ivy" depends="download-ivy">
-    <!-- try to load ivy here from ivy home, in case the user has not already dropped
-            it into ant's lib dir (note that the latter copy will always take precedence).
-            We will not fail as long as local lib dir exists (it may be empty) and
-            ivy is in at least one of ant's lib dir or the local lib dir. -->
       <path id="ivy.lib.path">
           <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
       </path>
       <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
   </target>
+
   <target name="init" depends="init-ivy">
     <ivy:settings file="ivysettings.xml"/>
     <ivy:retrieve/>
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
   </target>
+  
   <target name="compile" depends="init" description="compile the source">
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
-      <classpath>
-        <pathelement path="${classpath}"/>
-        <fileset dir="${lib}">
-          <include name="**/*.jar"/>
-        </fileset>
-      </classpath>
+    <mkdir dir="${build.dir}"/>
+    <echo>Compiling ${src.dir} with classpath=${toString:project.class.path} to ${build.dir}</echo>
+    <javac srcdir="${src.dir}"
+      destdir="${build.dir}"
+      includeAntRuntime="no"
+      includeJavaRuntime="no"
+      target="${ant.java.version}"
+      source="${ant.java.version}"
+      compiler="javac${ant.java.version}"
+      debug="true">
+      <classpath refid="project.class.path"/>
     </javac>
   </target>
-  <target name="dist" depends="compile" description="generate the distribution">
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
-    <!-- Put everything in ${build} into the TM1758-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/TM1758-${DSTAMP}.jar" basedir="${build}"/>
+
+  <target name="jar" depends="compile" description="generate the distribution">
+    <echo>Making jar ${dist.jar}</echo>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${build.jars}"/>
+
+    <echo>Copying jars from classpath=${toString:project.class.path} to ${build.jars}</echo>
+    <copy todir="${build.jars}" flatten="true">
+      <path refid="project.class.path"/>
+    </copy>
+    <jar destfile="${dist.jar}" update="false">
+      <manifest>
+        <attribute name="Main-Class" value="${main.class}"/>
+        <attribute name="Robot-Class" value="${robot.class}"/>
+        <attribute name="Class-Path" value="."/>
+      </manifest>
+      <fileset dir="${build.dir}" includes="**/*.class"/>
+      <zipgroupfileset dir="${build.jars}">
+        <include name="**/*.jar"/>
+      </zipgroupfileset>
+    </jar>
   </target>
+
+  <target name="deploy" depends="clean,jar" description="Deply the jar and start the program running.">
+    <echo>Starting deployment</echo>
+  </target>
+
   <target name="clean" description="clean up">
     <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
   </target>
-  <!--
-  The following properties can be defined to override system level
-  settings. These should not be touched unless you know what you're
-  doing. The primary use is to override the wpilib version when
-  working with older robots that can't compile with the latest
-  libraries.
-  -->
-
-  <!-- By default the system version of WPI is used -->
-  <!-- <property name="version" value=""/> -->
-
-  <!-- By default the system team number is used -->
-  <!-- <property name="team-number" value=""/> -->
-
-  <!-- By default the target is set to 10.TE.AM.2 -->
-  <!-- <property name="target" value=""/> -->
-
-  <!-- Any other property in build.properties can also be overridden. -->
-  
-  <!--<property file="${user.home}/wpilib/wpilib.properties"/>-->
-  <!--<property file="build.properties"/>-->
-  <!--<property file="${user.home}/wpilib/java/${version}/ant/build.properties"/>-->
-  
-  <!--<import file="${wpilib.ant.dir}/build.xml"/>-->
 </project> 
