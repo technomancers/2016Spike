@@ -5,5 +5,6 @@ lib/
 bin/
 build/
 dist/
+tasks/
 .DS_Store
 sysProps.xml
