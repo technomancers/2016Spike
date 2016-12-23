@@ -11,7 +11,7 @@
 
   <target name="download-ivy" unless="offline" description="Downlad ivy if it does not already exist.">
       <mkdir dir="${ivy.jar.dir}"/>
-      <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+      <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true" ignoreerrors="true"/>
   </target>
 
   <target name="init-ivy" depends="download-ivy" description="Initialize ivy with ant">
@@ -29,6 +29,7 @@
   <target name="deploy-dependencies" depends="init-ivy" description="Retrieve the dependencies for deployment">
     <ivy:retrieve conf="tasks" pattern="${tasks.dir}/[artifact]-[revision].[ext]"/>
     <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="project.tasks.path"/>
+    <get src="https://repo1.maven.org/maven2/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar" dest="${ivy.jar.dir}/jsch.jar" ignoreerrors="true" usetimestamp="true"/>
   </target>
   
   <target name="compile" depends="dependencies" description="Compile the source">
@@ -68,7 +69,7 @@
     </jar>
   </target>
 
-  <target name="deploy" depends="clean-build,jar,get-target-ip,verify-rio" description="Deploy the jar and restart the roboRio">
+  <target name="deploy" depends="clean-build,jar,get-target-ip" description="Deploy the jar and restart the roboRio">
     <echo>Starting deployment</echo>
     <scp file="${dist.jar}" todir="${username}@${target}:${deploy.dir}" password="${password}" trust="true"/>
     <sshexec host="${target}"
@@ -100,7 +101,7 @@
   <target name="clean-build" description="Clean up the build and distribution">
     <delete dir="${build.dir}"/>
     <delete dir="${dist.dir}"/>
-    <delete file="sysProps.xml"/>
+    <!--<delete file="sysProps.xml"/>-->
   </target>
 
   <target name="clean-dep" description="Clean the dependencies of the project">
