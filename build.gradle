@@ -1,0 +1,58 @@
+apply plugin: 'java'
+
+plugins {
+    id 'org.hidetake.ssh' version '2.7.0'
+}
+
+description 'Build and Deploy to the RoboRIO with WPI\'s FRC libraries'
+
+repositories {
+    maven {
+        url 'http://first.wpi.edu/FRC/roborio/maven/release/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile 'edu.wpi.first.wpilibj:wpilibJavaFinal:2016.5.1'
+    compile 'org.json:json:20160810'
+}
+
+
+//This is for VS Code's Java Plugin. "ext install vscode-javac"
+task vscodeClasspathFile {
+    description 'Generates classpath file for the Visual Studio Code java plugin'
+    ext.destFile = file("$buildDir/classpath.txt")
+    outputs.file destFile
+    doLast {
+        def classpathString = configurations.compile.collect{ it.absolutePath }.join(File.pathSeparator)
+        if (!destFile.parentFile.exists()) {
+            destFile.parentFile.mkdirs()
+        }
+        assert destFile.parentFile.exists()
+        destFile.text = classpathString
+    }
+}
+
+task vscodeJavaconfigFile(dependsOn: vscodeClasspathFile) {
+    description 'Generates javaconfig.json file for the Visual Studio Code java plugin'
+
+    def relativePath = { File f ->
+        f.absolutePath - "${project.rootDir.absolutePath}/"
+    }
+    ext.destFile = file("javaconfig.json")
+    ext.config = [
+        sourcePath: sourceSets.collect{ it.java.srcDirs }.flatten().collect{ relativePath(it) },
+        classPathFile: relativePath(tasks.getByPath('vscodeClasspathFile').outputs.files.singleFile),
+        outputDirectory: relativePath(new File(buildDir, 'vscode-classes'))
+    ]
+    doLast {
+        def jsonContent = groovy.json.JsonOutput.toJson(ext.config)
+        destFile.text = groovy.json.JsonOutput.prettyPrint(jsonContent)
+    }
+}
+
+task vscode(dependsOn: vscodeJavaconfigFile) {
+    description 'Generates config files for the Visual Studio Code java plugin'
+    group 'vscode'
+}
