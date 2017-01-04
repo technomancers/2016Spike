@@ -1,10 +1,9 @@
 .metadata/
 .settings/
 .project
-lib/
-bin/
 build/
-dist/
-tasks/
 .DS_Store
 sysProps.xml
+.gradle
+.classpath
+.project
