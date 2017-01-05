@@ -1,16 +1,22 @@
-buildscript {
-    repositories {
-        maven {
-            url uri('../repo')
-        }
-    }
-    dependencies {
-        classpath group: 'io.github.technomancers',
-                   name: 'GradleRIO',
-                version: '+'
-    }
+// Used for testing and debugging gradlerio
+// buildscript {
+//     repositories {
+//         maven {
+//             url uri('../repo')
+//         }
+//     }
+//     dependencies {
+//         classpath group: 'io.github.technomancers',
+//                    name: 'GradleRIO',
+//                 version: '+'
+//     }
+// }
+// apply plugin: 'GradleRIO'
+//Actual deployment of gradlerio
+plugins {
+  id "io.github.technomancers.gradleio" version "0.1.0"
 }
-apply plugin: 'GradleRIO'
+apply plugin: 'eclipse'
 
 description 'Build and Deploy to the RoboRIO with WPI\'s FRC libraries'
 

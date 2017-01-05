@@ -1,4 +1,4 @@
-package org.usfirst.frc.team1758.robot;
+package org.usfirst.frc.team1758;
 
 //import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
