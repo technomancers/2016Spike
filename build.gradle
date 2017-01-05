@@ -14,16 +14,16 @@
 // apply plugin: 'GradleRIO'
 //Actual deployment of gradlerio
 plugins {
-  id "io.github.technomancers.gradleio" version "0.1.0"
+	id "io.github.technomancers.gradleio" version "0.1.0"
 }
 apply plugin: 'eclipse'
 
 description 'Build and Deploy to the RoboRIO with WPI\'s FRC libraries'
 
 dependencies {
-    compile 'org.json:json:20160810'
+	compile 'org.json:json:20160810'
 }
 
 gradlerio{
-    teamNumber '1758'
+	teamNumber '1758'
 }
